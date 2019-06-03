@@ -24,7 +24,7 @@ def pop_app(aircompany_name, flight_number):
     return jsonify({'tasks': report})
 
 
-@app.route('/todo/api/v1.0/tasks/get_forecast/<aircompany_name>/<flight_number>', methods=['GET'])
+@app.route('/todo/api/v1.0/weather/<aircompany_name>/<flight_number>', methods=['GET'])
 def get_forecast_app(aircompany_name, flight_number):
     """Функция возвращает JSON с прогонозом погоды для города отправления и города прибытия указанного рейса.
         Для получения данных нужно имя авиакомпании и номер рейса"""

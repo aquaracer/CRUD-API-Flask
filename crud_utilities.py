@@ -44,11 +44,12 @@ def push(name, number, cityA, timeA, cityB, timeB):
 
 
 def pop(name, number):
- """Функция удаляет запись из базы полетов. Входные данные название авиакомпании и номер рейса.
+    ''' Функция удаляет запись из базы полетов. Входные данные название авиакомпании и номер рейса.
     Производится поиск в базе по ключу (название компании + номер рейса). Если запись найдена то происходит ее
-    удаление и возвращается подтверждение об удалении. Если запись в базе отствует выводится соответствующее сообщение """
-    
-    conn = sqlite3.connect("forecast_bot_database.db") 
+    удаление и возвращается подтверждение об удалении.
+    Если запись в базе отствует выводится соответствующее сообщение'''
+         
+    conn = sqlite3.connect("forecast_bot_database.db")
     cursor = conn.cursor() # подключаемся к базе
     conn.commit()
 
@@ -141,7 +142,7 @@ def check_in_cache(city):
     conn.commit()
     res = [] # создаем пустой массив для результатов
     temp_city = '"' + city + '"'   # создаем кавычки для city
-    sql = "SELECT date_time_of_creation FROM Cache WHERE city={0}" # ищем записи с заданным именем
+    sql = "SELECT date_time_of_creation FROM Cache WHERE city={0}" # ищем записи с заданным названием города
     sql=sql.format(temp_city)
     cursor.execute(sql)
     ans = cursor.fetchall() # найденные записи заносим в массив
@@ -179,10 +180,8 @@ def check_in_cache(city):
             cursor.execute(sql, [(search_name)])
             ans = cursor.fetchall() # найденный JSON записываем в переменную
             ans = ans[0][0]
-            print(ans)
-            json = eval(ans)
-            print('преобразовали')
-            print(json)
+            json = eval(ans) # преобразовываем строку оратно в словарь
+            
             if actual_month - cache_month >= 2:  # если разница в месяцах больше 2х то точно не берем Json из КЭШа
                 flag = False
                 arr = False
@@ -214,12 +213,12 @@ def check_in_cache(city):
                     flag = False
                     arr = False
                     return flag, arr
-            elif actual_month - cache_month == 0:
-                if (actual_day - cache_day) >= 2 :
+            elif actual_month - cache_month == 0: # если даты в том же месяце то смотри разницу по дням 
+                if (actual_day - cache_day) >= 2 : # если разница в днях 2 и более то данные в КЕШе точно не актуальны
                     flag = False
                     arr = False
                     return flag, arr
-                elif actual_day - cache_day == 1:
+                elif actual_day - cache_day == 1:  # если разница в днях составляет 1 - смотрим разницу в часах
                     temp_hour = 24 - cache_hour
                     if (temp_hour + actual_hour) < 12:
                         flag = True
@@ -229,7 +228,7 @@ def check_in_cache(city):
                         flag = False
                         arr = False
                         return flag, arr
-                elif actual_day - cache_day == 0:
+                elif actual_day - cache_day == 0:  # если разница в днях составляет 0 - смотрим разницу в часах
                     if actual_hour - cache_hour < 12:
                         flag = True
                         arr = json
@@ -238,17 +237,12 @@ def check_in_cache(city):
                         flag = False
                         arr = False
                         return flag, arr
+
         
 
-#        
-#curr_city = 'London'
-#
-#ans1 , ans2 = check_in_cache(curr_city)
-#print (ans1)
-#print (ans2)
-
-
 def get_forecast(name, flight_number):
+    """Функция получает погоду для городов отправки и прибытия в соответствующее время.
+        """
     conn = sqlite3.connect("forecast_bot_database.db") # открываем базу
     cursor = conn.cursor()
     conn.commit()
@@ -265,11 +259,9 @@ def get_forecast(name, flight_number):
     sql = "SELECT time_of_departure FROM M_Flights WHERE Track_id=?" # ищем время отправления по Track_id
     cursor.execute(sql, [(track_id)])
     ans = cursor.fetchall() # найденное время записываем в переменную
-    print(ans)
     time_of_departure = ans[0][0] # получили время отправления
-    print(time_of_departure)
-    ans1 , ans2 = check_in_cache(city_of_departure)
-    if ans1:
+    ans1 , ans2 = check_in_cache(city_of_departure) # проверяем данные для данного города в КЕШе
+    if ans1:  # если в КЕШе есть актуальный прогноз - берем JSON с погодой из КЕШа 
         print('Json взят из кеша')
         json_1 = ans2
         
@@ -286,12 +278,11 @@ def get_forecast(name, flight_number):
             else:
                 count_1 +=1
     
-        aim_weather =  json_1['forecasts'][count_1]['hours'][int(aim_time)]           
-        #print(aim_weather)
-        json_1 = aim_weather
-    else:
+        aim_weather =  json_1['forecasts'][count_1]['hours'][int(aim_time)]            
+        json_1 = aim_weather # получаем погоду для города отправления
+    else: # если в КЕШе нет актуальных данных с погодой берем данные из Яндекс.Погоды
         print('Json взят из Яндекса')
-        json_1 = get_weather_from_yandex(time_of_departure, city_of_departure)
+        json_1 = get_weather_from_yandex(time_of_departure, city_of_departure) # получаем погоду для города отправления
 
     
     sql = "SELECT city_of_arrival FROM M_Flights WHERE Track_id=?" # ищем город прибытия по Track_id
@@ -307,9 +298,8 @@ def get_forecast(name, flight_number):
     print(ans)
     time_of_arrival = ans[0][0] # получили время прибытия
     print(time_of_arrival)
-
-    ans1 , ans2 = check_in_cache(city_of_arrival)
-    if ans1:
+    ans1 , ans2 = check_in_cache(city_of_arrival) # проверяем данные для данного города в КЕШе
+    if ans1: # если в КЕШе есть актуальный прогноз - берем JSON с погодой из КЕШа
         print('Json взят из кеша')
         json_2 = ans2
         
@@ -327,20 +317,13 @@ def get_forecast(name, flight_number):
                 count_1 +=1
     
         aim_weather =  json_2['forecasts'][count_1]['hours'][int(aim_time)]           
-        #print(aim_weather)
-        json_2 = aim_weather
-        
-    else:
+        json_2 = aim_weather # получаем погоду для города прибытия
+    else:# если в КЕШе нет актуальных данных с погодой берем данные из Яндекс.Погоды
         print('Json взят из Яндекса')
-        json_2 = get_weather_from_yandex(time_of_arrival, city_of_arrival)
+        json_2 = get_weather_from_yandex(time_of_arrival, city_of_arrival) # получаем погоду для города прибытия
+    return json_1, json_2  
 
-    return json_1, json_2
 
-
-Res_1 , Res_2 = get_forecast('C_3', '132')
-
-print (Res_1)
-print (Res_2)
 
         
     
