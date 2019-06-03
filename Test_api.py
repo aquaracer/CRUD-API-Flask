@@ -27,3 +27,14 @@ get_weather_from_yandex(time_of_arrival, city_of_arrival)
     
 
 
+def check_in_cache(city, time_date):
+    request = "SELECT rowid, * FROM Cache ORDER BY city"  # создаем запрос на список ID
+    request = request.format(table_name)
+    res = [] 
+    for row in cursor.execute(request):   # создаем массив ID
+        res.append(row[1])
+    
+    if city not in res:
+        flag = False
+        json_report = False
+    else:

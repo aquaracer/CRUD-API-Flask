@@ -5,6 +5,15 @@ cursor = conn.cursor()
 
 conn.commit()
 
+track_id = 'C_3129'
+
+sql = "SELECT time_of_arrival FROM M_Flights WHERE Track_id=?" # ищем время прибытия по Track_id
+cursor.execute(sql, [(track_id)])
+ans = cursor.fetchall() # найденное время записываем в переменную
+print(ans)
+time_of_arrival = ans[0][0] # получили время прибытия
+print(time_of_arrival)
+
 #cursor.execute("""CREATE TABLE Cache
 #                  (ID text, city text, date_time_of_creation text, JSON text)
 #               """)
@@ -26,11 +35,8 @@ print("Here's a listing of all the records in the Cache:")
 for row in cursor.execute("SELECT rowid, * FROM Cache ORDER BY ID"):
     print(row)
 
-search_name = "Kolya" # задаем имя для поиска
 
-sql = "SELECT * FROM balances WHERE user_id=?" # ищем записи с заданным именем
-#cursor.execute(sql, [(search_name)])
-#ans = cursor.fetchall() # найденные записи заносим в массив
+
 #print(cursor.fetchall()) # or use fetchone(), выводим результат поиска
 #print(len(ans))    # выводим длину массива
 #print(ans)
