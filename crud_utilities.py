@@ -25,15 +25,6 @@ def push(name, number, cityA, timeA, cityB, timeB):
     conn = sqlite3.connect("forecast_bot_database.db") # или :memory: чтобы сохранить в RAM
     cursor = conn.cursor() # подключаемся к базе
     
-    #parts_of_data = push_data.split('/')
-       
-    #table_name = 'logistic_table_2'
-    #request = "SELECT rowid, * FROM {0} ORDER BY Track_ID"  # создаем запрос на список ID
-    #request = request.format(table_name)
-    #res = [] 
-    #for row in cursor.execute(request):   # создаем массив ID
-    #    res.append(row[1])    
-    
     Track_ID =name + number   # получили данные для 1й колонки
     flight_number=number # получили данные для 2й колонки
     city_of_departure = cityA # получили данные для 3й колонки
@@ -48,25 +39,16 @@ def push(name, number, cityA, timeA, cityB, timeB):
     cursor.executemany(new_insert, new_information) # добавляем запись в базу
     conn.commit()
 
-    request = "SELECT rowid, * FROM M_Flights ORDER BY Track_ID"
-    print (request)
-
-
-
-    print("Here's a listing of all the records in Table ")
-    for row in cursor.execute(request):
-        print(row)
-    
-
-    #print('Track_ID: ', Track_ID)
-
-
-    report = ' information has been added to the base'
+    report = ' information has been added to the base' # формулируем сообщение об успешном добавлении записи в базу
     return report
 
 
 def pop(name, number):
-    conn = sqlite3.connect("forecast_bot_database.db") # или :memory: чтобы сохранить в RAM
+ """Функция удаляет запись из базы полетов. Входные данные название авиакомпании и номер рейса.
+    Производится поиск в базе по ключу (название компании + номер рейса). Если запись найдена то происходит ее
+    удаление и возвращается подтверждение об удалении. Если запись в базе отствует выводится соответствующее сообщение """
+    
+    conn = sqlite3.connect("forecast_bot_database.db") 
     cursor = conn.cursor() # подключаемся к базе
     conn.commit()
 
@@ -74,11 +56,8 @@ def pop(name, number):
 
     Track_ID =name+number # создаем Track_Id состоящий из имени компании и номера рейса
 
-    for row in cursor.execute("SELECT rowid, * from M_Flights ORDER BY Track_ID"): # создаем пустой массив записей
-        print(row)
+    for row in cursor.execute("SELECT rowid, * from M_Flights ORDER BY Track_ID"): # создаем массив записей Track_ID
         res.append(row[1])
-        print(res)
-
     if Track_ID in res:  # если Track_ID есть в базе - удаляем
         c = '"' + Track_ID + '"'   # создаем кавычки для ID
         sql = "DELETE FROM M_Flights WHERE Track_ID = {0} " # формулируем запрос на удаление
@@ -95,38 +74,24 @@ def get_weather_from_yandex(date_time, city_name):
     """Функция получает погоду для конретного города в конкретное время.
        Также кеширует JSON с погодой на 7 дней для заданного города"""
     
-
     cur_url = 'https://geocode-maps.yandex.ru/1.x/?format=json&apikey=a3d86791-9f7c-483b-bd99-6fa3393d63d5&geocode={0}' # создаем ссылку на запрос координат города
     cur_url = cur_url.format(city_name)  # подставляем нужный город
-
     r = requests.get(url=cur_url) # через API запрос получаем словарь в формате JSON
-    #print('список получили')
     data = r.json()
-    #print(data)
     data = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos'] # находим строку с долготой и широтой
-    print(data)
     data=data.split(' ')
     lat= data[1] # записываем широту
     lon = data[0] # записываем долготу
-    print(lat)
-    print(lon)
-    
-    
-    
+      
     cur_url ='https://api.weather.yandex.ru/v1/forecast?lat={0}&lon={1}' # создаем ссылку на запрос погоды
     cur_url = cur_url.format(lat,lon) # подставляем долготу и широту заданного города
     header = {'X-Yandex-API-Key': '9986e832-3934-4bbd-aef1-21d632411afa'}
     r = requests.get(url=cur_url, headers=header ) # через API запрос получаем словарь в формате JSON
-    print('погоду получили')
     data = r.json()
-    print(data)
     add_data_to_cache(city_name, str(data)) # добавляем в КЕШ город и JSON с погодой
-    
-
-    aim_date = date_time[:10]
+    aim_date = date_time[:10]              # создаем целевую дату(дату рейса) для поиска в JSON
     aim_date = aim_date.replace('_', '-')  # приводим дату к формату годному для Яндекса
-    aim_time = date_time[11:13]
-    print (aim_time)
+    aim_time = date_time[11:13]            # создаем целевое время(время рейса) для поиска в JSON 
     
     temp_array_1 = data['forecasts'] # вытаскиваем массив словарей из JSON
     count_1 = 0
@@ -137,12 +102,15 @@ def get_weather_from_yandex(date_time, city_name):
         else:
             count_1 +=1
     
-    aim_weather =  data['forecasts'][count_1]['hours'][int(aim_time)]           
-    print(aim_weather)
+    aim_weather =  data['forecasts'][count_1]['hours'][int(aim_time)]  # вытаскиваем прогноз погоды в заданные дату и время         
     return aim_weather
 
 
 def add_data_to_cache(city, JSON):
+    """Функция кеширования. В базу данных cache добавляются следующие данные по столбцам:
+
+ ID (в формате: город + дата создания)| город | дата создания | JSON с погодой на неделю """
+
     conn = sqlite3.connect("forecast_bot_database.db") # подключаемся к базе
     cursor = conn.cursor()
     conn.commit()
@@ -156,31 +124,18 @@ def add_data_to_cache(city, JSON):
     cursor.executemany("INSERT INTO Cache VALUES(?,?,?,?)", new_data) # добавляем запись в базу
     conn.commit()
     print ('данные добавлены в КЕШ')
-    print("Here's a listing of all the records in the Cache:")
-    for row in cursor.execute("SELECT rowid, * FROM Cache ORDER BY ID"):
-        print(row)
     
-    
-    
-
-#time_of_arrival = '2019-06-03 00:40'
-#city_of_arrival = 'Toronto'
-
-
-#get_weather_from_yandex(time_of_arrival, city_of_arrival)
-
-
-#test_data = 'C_3/121/Chicago/2019-05-30 19:40/Los Angeles/2019-05-30 21:00'
-#push(test_data)
-
-#test_data2 = 'C_3/123/Chicago/2019_06_03_19_45/Los Angeles/2019_06_03_22_20'
-
-#def request_forecast(r_f_data):
-    
-    
-
-
+       
 def check_in_cache(city):
+    """Функция проверяет наличие JSON с погодой в кеше по заданному городу и в случае обнаружения
+       актуальных данных возвращается JSON с погодой. 
+       Проверка проводится в 2 этапа:
+       1 этап Производится поиск заданного города в КЕШе. Если город не
+       найден функция прекрщает действие. Если город найден переходим к следующему этапу - проверки актуальности данных.
+       2 этап проверяем сколько прошло времени с момента создания записи в кеше до актуального запроса.
+       Если с момента создания крайней записи в КЕШе до запроса прошло менее 12 часов - то берем запись из КЕШа.
+       В противном случае - через другую функцию берем актуальные данные с Яндекс.Погоды"""
+    
     conn = sqlite3.connect("forecast_bot_database.db") # открываем базу
     cursor = conn.cursor()
     conn.commit()
@@ -197,15 +152,15 @@ def check_in_cache(city):
         flag = False
         arr = False
         return flag, arr
-    else:
+    else:     # в противном случае в КЕШе есть как минимум одна запись для данного города
         cache_time_date = max(ans) # получили время введения в КЕШ самых актуальных данных
         cache_time_date = cache_time_date[0]
         print (cache_time_date)
         
-        actual_time_date = str(datetime.datetime.now()) # получаем актуальное время
-        actual_time_date = actual_time_date[:19]
+        actual_time_date = str(datetime.datetime.now()) 
+        actual_time_date = actual_time_date[:19]# получаем актуальное время
         actual_year = int(actual_time_date[:4]) # получаем актуальный год в формате ИНТ
-        cache_year = int(cache_time_date[:4])
+        cache_year = int(cache_time_date[:4])   # 
         if actual_year - cache_year > 0:
             flag = False
             arr = False
