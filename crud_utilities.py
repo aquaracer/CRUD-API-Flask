@@ -5,6 +5,7 @@ import requests
 import datetime
 import json
 
+
 def push(name, number, cityA, timeA, cityB, timeB):
     '''Цель функции заполнить 6 строк таблицы:
 
@@ -128,6 +129,8 @@ def add_data_to_cache(city, JSON):
     
        
 def check_in_cache(city):
+    import datetime
+    
     """Функция проверяет наличие JSON с погодой в кеше по заданному городу и в случае обнаружения
        актуальных данных возвращается JSON с погодой. 
        Проверка проводится в 2 этапа:
@@ -155,88 +158,121 @@ def check_in_cache(city):
         return flag, arr
     else:     # в противном случае в КЕШе есть как минимум одна запись для данного города
         cache_time_date = max(ans) # получили время введения в КЕШ самых актуальных данных
-        cache_time_date = cache_time_date[0]
-        print (cache_time_date)
-        
-        actual_time_date = str(datetime.datetime.now()) 
-        actual_time_date = actual_time_date[:19]# получаем актуальное время
-        actual_year = int(actual_time_date[:4]) # получаем актуальный год в формате ИНТ
-        cache_year = int(cache_time_date[:4])   # 
-        if actual_year - cache_year > 0:
-            flag = False
-            arr = False
-            return flag, arr
-        else:
-            actual_month = int(actual_time_date[5:7]) # получаем актуальный месяц
-            cache_month = int(cache_time_date[5:7])   # получаем месяц из КЭШа
-            actual_day = int(actual_time_date[8:10])  # получаем актуальный день     
-            cache_day = int(cache_time_date[8:10])    # получаем день из КЭШа
-            actual_hour = int(actual_time_date[11:13])# получаем актуальный час
-            cache_hour = int(cache_time_date[11:13])  # получаем час из КЭШа
-            aim_track_id = city + cache_time_date     # получаем целевой Track_id для получения нужного Json bp КЭША
-            print (aim_track_id)
-            search_name = aim_track_id # задаем ID для поиска
-            sql = "SELECT JSON FROM cache WHERE ID=?" # ищем Json по заданному ID
-            cursor.execute(sql, [(search_name)])
-            ans = cursor.fetchall() # найденный JSON записываем в переменную
-            ans = ans[0][0]
-            json = eval(ans) # преобразовываем строку оратно в словарь
-            
-            if actual_month - cache_month >= 2:  # если разница в месяцах больше 2х то точно не берем Json из КЭШа
+
+        actual_time_date = datetime.datetime.now()  # получаем актуальное время
+        cache_time_date= cache_time_date[0]
+        print(cache_time_date)
+        print(type(cache_time_date))
+        from datetime import datetime
+        cache_time_date = datetime.strptime(cache_time_date, '%Y-%m-%d %H:%M:%S') # переводим дату и время из строки в соответствующий формат           
+        delta = actual_time_date - cache_time_date
+        days_delta = delta.days
+        if days_delta == 0 : #  если разница в днях равна 0
+            total_seconds = delta.seconds
+            if total_seconds < 43200:
+                aim_track_id = city + str(cache_time_date)     # получаем целевой Track_id для получения нужного Json bp КЭША
+                #print (aim_track_id)
+                search_name = aim_track_id # задаем ID для поиска
+                sql = "SELECT JSON FROM cache WHERE ID=?" # ищем Json по заданному ID
+                cursor.execute(sql, [(search_name)])
+                ans = cursor.fetchall() # найденный JSON записываем в переменную
+                ans = ans[0][0]
+                json = eval(ans)    
+                flag = True
+                arr = json
+                return flag, arr
+            else:
                 flag = False
                 arr = False
                 return flag, arr
-            elif actual_month - cache_month == 1: # если разница в месяцах равна 1 - смотрим варианты
-                months_1 = [4,6,9,11]
-                months_2 = [1,3,5,7,8,10,12]
-                if actual_day == 30 and cache_day == 1 and cache_month in months_1:
-                    temp_hour = 24 - cache_hour
-                    if (temp_hour + actual_hour) < 12:
-                        flag = True
-                        arr = json
-                        return flag, arr
-                    else:
-                        flag = False
-                        arr = False
-                        return flag, arr
-                elif actual_day == 31 and cache_day == 1 and cache_month in months_2:
-                    temp_hour = 24 - cache_hour
-                    if (temp_hour + actual_hour) < 12:
-                        flag = True
-                        arr = json
-                        return flag, arr
-                    else:
-                        flag = False
-                        arr = False
-                        return flag, arr
-                else:
-                    flag = False
-                    arr = False
-                    return flag, arr
-            elif actual_month - cache_month == 0: # если даты в том же месяце то смотри разницу по дням 
-                if (actual_day - cache_day) >= 2 : # если разница в днях 2 и более то данные в КЕШе точно не актуальны
-                    flag = False
-                    arr = False
-                    return flag, arr
-                elif actual_day - cache_day == 1:  # если разница в днях составляет 1 - смотрим разницу в часах
-                    temp_hour = 24 - cache_hour
-                    if (temp_hour + actual_hour) < 12:
-                        flag = True
-                        arr = json
-                        return flag, arr
-                    else:
-                        flag = False
-                        arr = False
-                        return flag, arr
-                elif actual_day - cache_day == 0:  # если разница в днях составляет 0 - смотрим разницу в часах
-                    if actual_hour - cache_hour < 12:
-                        flag = True
-                        arr = json
-                        return flag, arr
-                    else:
-                        flag = False
-                        arr = False
-                        return flag, arr
+        else:
+            flag = False
+            arr = False
+            return flag, arr
+
+        
+       # cache_time_date = cache_time_date[0]
+       # print (cache_time_date)
+        
+       # actual_time_date = str(datetime.datetime.now()) 
+       # actual_time_date = actual_time_date[:19]# получаем актуальное время
+       # actual_year = int(actual_time_date[:4]) # получаем актуальный год в формате ИНТ
+       # cache_year = int(cache_time_date[:4])   # 
+       # if actual_year - cache_year > 0:
+       #     flag = False
+       #     arr = False
+       #     return flag, arr
+       # else:
+
+            #actual_month = int(actual_time_date[5:7]) # получаем актуальный месяц
+            #cache_month = int(cache_time_date[5:7])   # получаем месяц из КЭШа
+            #actual_day = int(actual_time_date[8:10])  # получаем актуальный день     
+            #cache_day = int(cache_time_date[8:10])    # получаем день из КЭШа
+            #actual_hour = int(actual_time_date[11:13])# получаем актуальный час
+            #cache_hour = int(cache_time_date[11:13])  # получаем час из КЭШа
+           # aim_track_id = city + cache_time_date     # получаем целевой Track_id для получения нужного Json bp КЭША
+           # print (aim_track_id)
+           # search_name = aim_track_id # задаем ID для поиска
+           # sql = "SELECT JSON FROM cache WHERE ID=?" # ищем Json по заданному ID
+           # cursor.execute(sql, [(search_name)])
+           # ans = cursor.fetchall() # найденный JSON записываем в переменную
+           # ans = ans[0][0]
+           # json = eval(ans) # преобразовываем строку оратно в словарь
+          #  if actual_month - cache_month >= 2:  # если разница в месяцах больше 2х то точно не берем Json из КЭШа
+          #      flag = False
+          #      arr = False
+          #      return flag, arr
+          #  elif actual_month - cache_month == 1: # если разница в месяцах равна 1 - смотрим варианты
+          #      months_1 = [4,6,9,11]
+          #      months_2 = [1,3,5,7,8,10,12]
+          #      if actual_day == 30 and cache_day == 1 and cache_month in months_1:
+          #         temp_hour = 24 - cache_hour
+          #          if (temp_hour + actual_hour) < 12:
+          #              flag = True
+          #              arr = json
+          #              return flag, arr
+          #          else:
+          #              flag = False
+          #              arr = False
+          #              return flag, arr
+          #      elif actual_day == 31 and cache_day == 1 and cache_month in months_2:
+          #          temp_hour = 24 - cache_hour
+          #          if (temp_hour + actual_hour) < 12:
+          #              flag = True
+          #              arr = json
+          #              return flag, arr
+          #          else:
+          #              flag = False
+          #              arr = False
+          #              return flag, arr
+          #      else:
+          #          flag = False
+          #          arr = False
+          #          return flag, arr
+          #  elif actual_month - cache_month == 0: # если даты в том же месяце то смотри разницу по дням 
+          #      if (actual_day - cache_day) >= 2 : # если разница в днях 2 и более то данные в КЕШе точно не актуальны
+          #          flag = False
+          #          arr = False
+          #          return flag, arr
+          #      elif actual_day - cache_day == 1:  # если разница в днях составляет 1 - смотрим разницу в часах
+          #          temp_hour = 24 - cache_hour
+          #          if (temp_hour + actual_hour) < 12:
+          #              flag = True
+          #              arr = json
+          #              return flag, arr
+          #          else:
+          #              flag = False
+          #              arr = False
+          #              return flag, arr
+          #      elif actual_day - cache_day == 0:  # если разница в днях составляет 0 - смотрим разницу в часах
+          #          if actual_hour - cache_hour < 12:
+          #              flag = True
+          #              arr = json
+          #              return flag, arr
+          #          else:
+          #              flag = False
+          #              arr = False
+          #              return flag, arr
 
         
 
@@ -326,7 +362,11 @@ def get_forecast(name, flight_number):
 
 
         
-    
+test_flag, test_json = check_in_cache('Chicago')
+
+#test_json = get_weather_from_yandex('2019_06_08_22_15', 'Madrid')
+print (test_flag)
+print(test_json)
     
 
 
