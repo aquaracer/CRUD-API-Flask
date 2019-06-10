@@ -14,7 +14,7 @@ def push(name, number, cityA, timeA, cityB, timeB):
   город отправления |дата и время отправления| дата и время прибытия | город прибытия 
 
     Track ID -перевозчик + номер рейса + время отправления
-    номер рейса             - берем из входных данных
+    номер рейса              - берем из входных данных
     город отправления        - берем из входных данных
     дата и время отправления - берем из входных данных
     город прибытия           - берем из входных данных
@@ -72,40 +72,6 @@ def pop(name, number):
     return report
     
 
-def get_weather_from_yandex(date_time, city_name):
-    """Функция получает погоду для конретного города в конкретное время.
-       Также кеширует JSON с погодой на 7 дней для заданного города"""
-    
-    cur_url = 'https://geocode-maps.yandex.ru/1.x/?format=json&apikey=a3d86791-9f7c-483b-bd99-6fa3393d63d5&geocode={0}' # создаем ссылку на запрос координат города
-    cur_url = cur_url.format(city_name)  # подставляем нужный город
-    r = requests.get(url=cur_url) # через API запрос получаем словарь в формате JSON
-    data = r.json()
-    data = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos'] # находим строку с долготой и широтой
-    data=data.split(' ')
-    lat= data[1] # записываем широту
-    lon = data[0] # записываем долготу
-      
-    cur_url ='https://api.weather.yandex.ru/v1/forecast?lat={0}&lon={1}' # создаем ссылку на запрос погоды
-    cur_url = cur_url.format(lat,lon) # подставляем долготу и широту заданного города
-    header = {'X-Yandex-API-Key': '9986e832-3934-4bbd-aef1-21d632411afa'}
-    r = requests.get(url=cur_url, headers=header ) # через API запрос получаем словарь в формате JSON
-    data = r.json()
-    add_data_to_cache(city_name, str(data)) # добавляем в КЕШ город и JSON с погодой
-    aim_date = date_time[:10]              # создаем целевую дату(дату рейса) для поиска в JSON
-    aim_date = aim_date.replace('_', '-')  # приводим дату к формату годному для Яндекса
-    aim_time = date_time[11:13]            # создаем целевое время(время рейса) для поиска в JSON 
-    
-    temp_array_1 = data['forecasts'] # вытаскиваем массив словарей из JSON
-    count_1 = 0
-    for element in temp_array_1:    # в массиве находим индекс словаря, в котором хранятся данные о погоде на заданную ДАТУ
-        if element['date'] == aim_date:
-            index_1 = count_1
-            break
-        else:
-            count_1 +=1
-    
-    aim_weather =  data['forecasts'][count_1]['hours'][int(aim_time)]  # вытаскиваем прогноз погоды в заданные дату и время         
-    return aim_weather
 
 
 def add_data_to_cache(city, JSON):
@@ -150,7 +116,7 @@ def check_in_cache(city):
     cursor.execute(sql)
     ans = cursor.fetchall() # найденные записи заносим в массив
     print(len(ans))    # выводим длину массива. 
-
+    
     if len(ans) < 1:# если в массиве ничего нет - значит города нет в КЕШе и получить JSON из КЕШа не получится
         print('города нет в КЭШе')
         flag = False
@@ -169,7 +135,7 @@ def check_in_cache(city):
         days_delta = delta.days
         if days_delta == 0 : #  если разница в днях равна 0
             total_seconds = delta.seconds
-            if total_seconds < 43200:
+            if total_seconds < 43200:  # если разница во времени менее 12 часов - берем погоду из КЕШа
                 aim_track_id = city + str(cache_time_date)     # получаем целевой Track_id для получения нужного Json bp КЭША
                 #print (aim_track_id)
                 search_name = aim_track_id # задаем ID для поиска
@@ -189,123 +155,44 @@ def check_in_cache(city):
             flag = False
             arr = False
             return flag, arr
-
-        
-       # cache_time_date = cache_time_date[0]
-       # print (cache_time_date)
-        
-       # actual_time_date = str(datetime.datetime.now()) 
-       # actual_time_date = actual_time_date[:19]# получаем актуальное время
-       # actual_year = int(actual_time_date[:4]) # получаем актуальный год в формате ИНТ
-       # cache_year = int(cache_time_date[:4])   # 
-       # if actual_year - cache_year > 0:
-       #     flag = False
-       #     arr = False
-       #     return flag, arr
-       # else:
-
-            #actual_month = int(actual_time_date[5:7]) # получаем актуальный месяц
-            #cache_month = int(cache_time_date[5:7])   # получаем месяц из КЭШа
-            #actual_day = int(actual_time_date[8:10])  # получаем актуальный день     
-            #cache_day = int(cache_time_date[8:10])    # получаем день из КЭШа
-            #actual_hour = int(actual_time_date[11:13])# получаем актуальный час
-            #cache_hour = int(cache_time_date[11:13])  # получаем час из КЭШа
-           # aim_track_id = city + cache_time_date     # получаем целевой Track_id для получения нужного Json bp КЭША
-           # print (aim_track_id)
-           # search_name = aim_track_id # задаем ID для поиска
-           # sql = "SELECT JSON FROM cache WHERE ID=?" # ищем Json по заданному ID
-           # cursor.execute(sql, [(search_name)])
-           # ans = cursor.fetchall() # найденный JSON записываем в переменную
-           # ans = ans[0][0]
-           # json = eval(ans) # преобразовываем строку оратно в словарь
-          #  if actual_month - cache_month >= 2:  # если разница в месяцах больше 2х то точно не берем Json из КЭШа
-          #      flag = False
-          #      arr = False
-          #      return flag, arr
-          #  elif actual_month - cache_month == 1: # если разница в месяцах равна 1 - смотрим варианты
-          #      months_1 = [4,6,9,11]
-          #      months_2 = [1,3,5,7,8,10,12]
-          #      if actual_day == 30 and cache_day == 1 and cache_month in months_1:
-          #         temp_hour = 24 - cache_hour
-          #          if (temp_hour + actual_hour) < 12:
-          #              flag = True
-          #              arr = json
-          #              return flag, arr
-          #          else:
-          #              flag = False
-          #              arr = False
-          #              return flag, arr
-          #      elif actual_day == 31 and cache_day == 1 and cache_month in months_2:
-          #          temp_hour = 24 - cache_hour
-          #          if (temp_hour + actual_hour) < 12:
-          #              flag = True
-          #              arr = json
-          #              return flag, arr
-          #          else:
-          #              flag = False
-          #              arr = False
-          #              return flag, arr
-          #      else:
-          #          flag = False
-          #          arr = False
-          #          return flag, arr
-          #  elif actual_month - cache_month == 0: # если даты в том же месяце то смотри разницу по дням 
-          #      if (actual_day - cache_day) >= 2 : # если разница в днях 2 и более то данные в КЕШе точно не актуальны
-          #          flag = False
-          #          arr = False
-          #          return flag, arr
-          #      elif actual_day - cache_day == 1:  # если разница в днях составляет 1 - смотрим разницу в часах
-          #          temp_hour = 24 - cache_hour
-          #          if (temp_hour + actual_hour) < 12:
-          #              flag = True
-          #              arr = json
-          #              return flag, arr
-          #          else:
-          #              flag = False
-          #              arr = False
-          #              return flag, arr
-          #      elif actual_day - cache_day == 0:  # если разница в днях составляет 0 - смотрим разницу в часах
-          #          if actual_hour - cache_hour < 12:
-          #              flag = True
-          #              arr = json
-          #              return flag, arr
-          #          else:
-          #              flag = False
-          #              arr = False
-          #              return flag, arr
-
         
 
-def get_forecast(name, flight_number):
-    """Функция получает погоду для городов отправки и прибытия в соответствующее время.
-        """
+def get_city_json(track_id, direction):
+    """ Функция на входе получает Track_id и напрвление полета(отправление и прибытие).
+        По заданным данным находит в базе соответствующий город и время. Далее проверяет КЕШ (функция check_in_cash) на наличие актуальной
+        записи по заданному городу. Если находит в КЕШе - возвращает JSON с погодой для заданного города на заданное
+        время. Если не находит в КЕШе - берет данные в Яндекс погоде(функция get_weather_from_yandex) и
+        возвращает JSON с погодой для заданного города на заданное время"""
+    
     conn = sqlite3.connect("forecast_bot_database.db") # открываем базу
     cursor = conn.cursor()
     conn.commit()
 
-    track_id = name + flight_number
-
-    sql = "SELECT city_of_departure FROM M_Flights WHERE Track_id=?" # ищем город отправления по Track_id
+    sql = "SELECT city_of_{0} FROM M_Flights WHERE Track_id=?" # ищем город отправления(или прибытия в зависимости от переменной direction) по Track_id
+    sql = sql.format(direction)
     cursor.execute(sql, [(track_id)])
     ans = cursor.fetchall() # найденный город записываем в переменную
     print(ans)
-    city_of_departure = ans[0][0] # получили город отправления
-    print(city_of_departure)
+    city_of_flight = ans[0][0] # получили город отправления(или прибытия в зависимости от переменной direction)
+    print(city_of_flight)
 
-    sql = "SELECT time_of_departure FROM M_Flights WHERE Track_id=?" # ищем время отправления по Track_id
+    sql = "SELECT time_of_{0} FROM M_Flights WHERE Track_id=?" # ищем время отправления(или прибытия в зависимости от переменной direction) по Track_id
+    sql = sql.format(direction)
     cursor.execute(sql, [(track_id)])
     ans = cursor.fetchall() # найденное время записываем в переменную
-    time_of_departure = ans[0][0] # получили время отправления
-    ans1 , ans2 = check_in_cache(city_of_departure) # проверяем данные для данного города в КЕШе
+    time_of_flight = ans[0][0] # получили время 
+    ans1 , ans2 = check_in_cache(city_of_flight) # проверяем данные для данного города в КЕШе
     if ans1:  # если в КЕШе есть актуальный прогноз - берем JSON с погодой из КЕШа 
         print('Json взят из кеша')
-        json_1 = ans2
+        json_final = ans2
+        print(json_final['now_dt'])
         
-        aim_date = time_of_departure[:10] # задаем целевую дату
+        aim_date = time_of_flight[:10] # задаем целевую дату
         aim_date = aim_date.replace('_', '-')  # приводим дату к формату годному для Яндекса
-        aim_time = time_of_departure[11:13] # задаем целевое время
-        
-        temp_array_1 = json_1['forecasts'] # вытаскиваем массив словарей из JSON
+        aim_time = time_of_flight[11:13] # задаем целевое время
+        print (aim_date)
+        print (aim_time)
+        temp_array_1 = json_final['forecasts'] # вытаскиваем массив словарей из JSON
         count_1 = 0
         for element in temp_array_1:    # в массиве находим индекс словаря, в котором хранятся данные о погоде на заданную ДАТУ
             if element['date'] == aim_date:
@@ -313,61 +200,74 @@ def get_forecast(name, flight_number):
                 break
             else:
                 count_1 +=1
-    
-        aim_weather =  json_1['forecasts'][count_1]['hours'][int(aim_time)]            
-        json_1 = aim_weather # получаем погоду для города отправления
+
+        print(json_final['forecasts'][count_1]['hours'])    
+        aim_weather =  json_final['forecasts'][count_1]['hours'][int(aim_time)]            
+        json_final = aim_weather # получаем погоду для города отправления
+        return json_final
     else: # если в КЕШе нет актуальных данных с погодой берем данные из Яндекс.Погоды
         print('Json взят из Яндекса')
-        json_1 = get_weather_from_yandex(time_of_departure, city_of_departure) # получаем погоду для города отправления
+        json_1 = get_weather_from_yandex(time_of_flight, city_of_flight) # получаем погоду для города отправления
+        return json_1
 
-    
-    sql = "SELECT city_of_arrival FROM M_Flights WHERE Track_id=?" # ищем город прибытия по Track_id
-    cursor.execute(sql, [(track_id)])
-    ans = cursor.fetchall() # найденный город записываем в переменную
-    print(ans)
-    city_of_arrival = ans[0][0] # получили город прибытия
-    print(city_of_arrival)
 
-    sql = "SELECT time_of_arrival FROM M_Flights WHERE Track_id=?" # ищем время прибытия по Track_id
-    cursor.execute(sql, [(track_id)])
-    ans = cursor.fetchall() # найденное время записываем в переменную
-    print(ans)
-    time_of_arrival = ans[0][0] # получили время прибытия
-    print(time_of_arrival)
-    ans1 , ans2 = check_in_cache(city_of_arrival) # проверяем данные для данного города в КЕШе
-    if ans1: # если в КЕШе есть актуальный прогноз - берем JSON с погодой из КЕШа
-        print('Json взят из кеша')
-        json_2 = ans2
-        
-        aim_date = time_of_departure[:10] # задаем целевую дату
-        aim_date = aim_date.replace('_', '-')  # приводим дату к формату годному для Яндекса
-        aim_time = time_of_departure[11:13] # задаем целевое время
-        
-        temp_array_1 = json_2['forecasts'] # вытаскиваем массив словарей из JSON
-        count_1 = 0
-        for element in temp_array_1:    # в массиве находим индекс словаря, в котором хранятся данные о погоде на заданную ДАТУ
-            if element['date'] == aim_date:
-                index_1 = count_1
-                break
-            else:
-                count_1 +=1
-    
-        aim_weather =  json_2['forecasts'][count_1]['hours'][int(aim_time)]           
-        json_2 = aim_weather # получаем погоду для города прибытия
-    else:# если в КЕШе нет актуальных данных с погодой берем данные из Яндекс.Погоды
-        print('Json взят из Яндекса')
-        json_2 = get_weather_from_yandex(time_of_arrival, city_of_arrival) # получаем погоду для города прибытия
+def get_forecast(name, flight_number):
+    """Функция получает погоду для городов отправки и прибытия в соответствующее время по номеру рейса.
+        """
+    track_id = name + flight_number # формируем Track_id
+    json_1 = get_city_json(track_id, "departure")
+    json_2 = get_city_json(track_id, "arrival")
+
     return json_1, json_2  
 
 
 
-        
-test_flag, test_json = check_in_cache('Chicago')
-
-#test_json = get_weather_from_yandex('2019_06_08_22_15', 'Madrid')
-print (test_flag)
-print(test_json)
+def get_weather_from_yandex(date_time, city_name):
+    """Функция получает погоду для конретного города в конкретное время.
+       Также кеширует JSON с погодой на 7 дней для заданного города"""
     
+    cur_url = 'https://geocode-maps.yandex.ru/1.x/?format=json&apikey=a3d86791-9f7c-483b-bd99-6fa3393d63d5&geocode={0}' # создаем ссылку на запрос координат города
+    cur_url = cur_url.format(city_name)  # подставляем нужный город
+    r = requests.get(url=cur_url) # через API запрос получаем словарь в формате JSON
+    data = r.json()
+    data = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos'] # находим строку с долготой и широтой
+    data=data.split(' ')
+    lat= data[1] # записываем широту
+    lon = data[0] # записываем долготу
+      
+    cur_url ='https://api.weather.yandex.ru/v1/forecast?lat={0}&lon={1}' # создаем ссылку на запрос погоды
+    cur_url = cur_url.format(lat,lon) # подставляем долготу и широту заданного города
+    header = {'X-Yandex-API-Key': '9986e832-3934-4bbd-aef1-21d632411afa'}
+    r = requests.get(url=cur_url, headers=header ) # через API запрос получаем словарь в формате JSON
+    data = r.json()
+    add_data_to_cache(city_name, str(data)) # добавляем в КЕШ город и JSON с погодой
+    aim_date = date_time[:10]              # создаем целевую дату(дату рейса) для поиска в JSON
+    aim_date = aim_date.replace('_', '-')  # приводим дату к формату годному для Яндекса
+    aim_time = date_time[11:13]            # создаем целевое время(время рейса) для поиска в JSON 
+    
+    temp_array_1 = data['forecasts'] # вытаскиваем массив словарей из JSON
+    count_1 = 0
+    for element in temp_array_1:    # в массиве находим индекс словаря, в котором хранятся данные о погоде на заданную ДАТУ
+        if element['date'] == aim_date:
+            index_1 = count_1
+            break
+        else:
+            count_1 +=1
+    
+    aim_weather =  data['forecasts'][count_1]['hours'][int(aim_time)]  # вытаскиваем прогноз погоды в заданные дату и время         
+    return aim_weather
 
 
+#j1, j2 = get_forecast('A_1', '162')
 
+#print (j1, j2)
+
+        
+#test_flag, test_json = check_in_cache('Chicago')
+#test_json = get_weather_from_yandex('2019_06_08_22_15', 'Madrid')
+#print (test_flag)
+#print(test_json)
+#test_json_1, test_json_2 = get_forecast("B_2", "159")
+#print (test_json_1)
+#print (test_json_2)
+#push('B_2', '159', 'Madrid', '2019_06_09_19_40', 'London', '2019_06_09_23_15')

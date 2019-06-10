@@ -32,5 +32,6 @@ def get_forecast_app(aircompany_name, flight_number):
     return jsonify({'forecast for city of departure': weather_1}, {'forecast for city of arrival': weather_2})
 
 
+
 if __name__ == '__main__':
     app.run(debug=True)
