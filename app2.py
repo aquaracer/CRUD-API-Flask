@@ -31,6 +31,15 @@ def get_forecast_app(aircompany_name, flight_number):
     weather_1, weather_2 = crud_utilities.get_forecast(aircompany_name, flight_number) 
     return jsonify({'forecast for city of departure': weather_1}, {'forecast for city of arrival': weather_2})
 
+@app.route('/todo/api/list/<aircompany_name>', methods=['GET'])
+def get_list(aircompany_name):
+    flag, report = crud_utilities.list(aircompany_name)
+    if flag:
+        return jsonify({'forthcoming flights': report})
+    else:
+        return jsonify({'answer': report})
+        
+    
 
 
 if __name__ == '__main__':
