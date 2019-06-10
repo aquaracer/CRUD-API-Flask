@@ -274,6 +274,38 @@ def list(name):
                 actual_time_date = datetime.datetime.now()
                 from datetime import datetime
                 temp = datetime.strptime(temp, '%Y_%m_%d_%H_%M') # переводим дату и время из строки в соответствующий формат
+
+                if actual_time_date < temp:
+                    #print(row)
+                    res.append(row[1:])
+
+    if len(res) == 0:
+        res = 'There are no forthcoming flights'
+        flag = False
+        return flag, res
+    elif len(res) > 0:
+        flag = True
+        return flag, res
+
+
+def archive(name):
+    conn = sqlite3.connect("forecast_bot_database.db") #
+    cursor = conn.cursor() # подключаемся к базе
+
+    res = []
+    #print("Here's a listing of all the records in the M_Flights:")
+    for row in cursor.execute("SELECT rowid, * FROM M_Flights ORDER BY time_of_departure"):
+        temp_1= row[1][:3]
+        #print (temp_1)
+        if temp_1 == name:
+            if row[4] != "time_of_departure":
+                import datetime
+                temp = row[4]
+                actual_time_date = datetime.datetime.now()
+                from datetime import datetime
+                temp = datetime.strptime(temp, '%Y_%m_%d_%H_%M') # переводим дату и время из строки в соответствующий формат
+                delta = actual_time_date - temp
+                
                 if actual_time_date < temp:
                     #print(row)
                     res.append(row[1:])
