@@ -8,9 +8,13 @@ CRUD api (Create Read Update Delete)
 Компании передают Вам информацию о рейсах, которые они будут совершать в ближайшее время.
 
 Добавление рейса:
- * PUSH (get запрос): .../push/name/number/cityA/timeA/
+ * 
+ 
+ 
+ PUSH (get запрос): .../push/name/number/cityA/timeA/
 cityB/timeB
-	name - название авиакомпании
+
+name - название авиакомпании
 	number - номер рейса
 	cityA - названия города отправления на английском
 	timeA - время отправления в формате dd_mm_yyyy_hh_mm 	  
