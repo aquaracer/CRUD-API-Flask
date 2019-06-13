@@ -229,6 +229,7 @@ def get_weather_from_yandex(date_time, city_name):
 def list(name):
     """ Входные данные: название авиакомпании. Функция возвращает список рейсов(в формате JSON) авиакомпании которые еще не совершились.
         Если таких рейсов нет - функция возвращает JSON  с соответствующим сообщением"""
+    
     conn = sqlite3.connect("forecast_bot_database.db") 
     cursor = conn.cursor() # подключаемся к базе
     res = []
