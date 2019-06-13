@@ -7,11 +7,11 @@ import json
 
 
 def push(name, number, cityA, timeA, cityB, timeB):
-    '''Цель функции заполнить 6 строк таблицы:
+    '''Цель функции заполнить 7 строк таблицы:
 
  трек_номер(Id) в формате  перевозчик +номер рейса | номер рейса  | 
 
-  город отправления |дата и время отправления| дата и время прибытия | город прибытия 
+  город отправления |дата и время отправления| дата и время прибытия | город прибытия | название авиакомпании
 
     Track ID -перевозчик + номер рейса + время отправления
     номер рейса              - берем из входных данных
@@ -19,7 +19,7 @@ def push(name, number, cityA, timeA, cityB, timeB):
     дата и время отправления - берем из входных данных
     город прибытия           - берем из входных данных
     дата и время прибытия    - берем из входных данных
-    
+    название авиакомпании    - берем из входных данных
     
       '''
 
@@ -33,8 +33,8 @@ def push(name, number, cityA, timeA, cityB, timeB):
     city_of_arrival = cityB # получили данные для 5й колонки
     time_of_arrival = timeB # получили данные для 6й колонки
 
-    new_information = [(Track_ID, flight_number, city_of_departure, date_time_of_departure, city_of_arrival, time_of_arrival)]
-    new_insert = "INSERT INTO M_Flights VALUES (?,?,?,?,?,?)"
+    new_information = [(Track_ID, flight_number, city_of_departure, date_time_of_departure, city_of_arrival, time_of_arrival, name)]
+    new_insert = "INSERT INTO M_Flights VALUES (?,?,?,?,?,?,?)"
         
     cursor.executemany(new_insert, new_information) # добавляем запись в базу
     conn.commit()
@@ -214,8 +214,7 @@ def get_weather_from_yandex(date_time, city_name):
     aim_date = date_time[:10]              # создаем целевую дату(дату рейса) для поиска в JSON
     aim_date = aim_date.replace('_', '-')  # приводим дату к формату годному для Яндекса
     aim_time = date_time[11:13]            # создаем целевое время(время рейса) для поиска в JSON 
-    
-    temp_array_1 = data['forecasts'] # вытаскиваем массив словарей из JSON
+    temp_array_1 = data['forecasts']   # вытаскиваем массив словарей из JSON
     count_1 = 0
     for element in temp_array_1:    # в массиве находим индекс словаря, в котором хранятся данные о погоде на заданную ДАТУ
         if element['date'] == aim_date:
@@ -223,19 +222,18 @@ def get_weather_from_yandex(date_time, city_name):
             break
         else:
             count_1 +=1
-    
     aim_weather =  data['forecasts'][count_1]['hours'][int(aim_time)]  # вытаскиваем прогноз погоды в заданные дату и время         
     return aim_weather
 
 
 def list(name):
-    conn = sqlite3.connect("forecast_bot_database.db") #
+    """ Входные данные: название авиакомпании. Функция возвращает список рейсов(в формате JSON) авиакомпании которые еще не совершились.
+        Если таких рейсов нет - функция возвращает JSON  с соответствующим сообщением"""
+    conn = sqlite3.connect("forecast_bot_database.db") 
     cursor = conn.cursor() # подключаемся к базе
-
     res = []
-    #print("Here's a listing of all the records in the M_Flights:")
     for row in cursor.execute("SELECT rowid, * FROM M_Flights ORDER BY time_of_departure"):
-        temp_1= row[1][:3]
+        temp_1= row[1][:3] # переменную записываем названием авиакомпании
         #print (temp_1)
         if temp_1 == name:
             if row[4] != "time_of_departure":
