@@ -143,7 +143,7 @@ def check_in_cache(city):
         
 
 def get_city_json(track_id, direction):
-    """ Функция на входе получает Track_id и направление полета(отправление и прибытие).
+    """ Функция на входе получает Track_id и напрвление полета(отправление и прибытие).
         По заданным данным находит в базе соответствующий город и время. Далее проверяет КЕШ (функция check_in_cash) на наличие актуальной
         записи по заданному городу. Если находит в КЕШе - возвращает JSON с погодой для заданного города на заданное
         время. Если не находит в КЕШе - берет данные в Яндекс погоде(функция get_weather_from_yandex) и
@@ -226,66 +226,62 @@ def get_weather_from_yandex(date_time, city_name):
     return aim_weather
 
 
-def list(name):
-    """ Входные данные: название авиакомпании. Функция возвращает список рейсов(в формате JSON) авиакомпании которые еще не совершились.
+def list_1(company_name):
+    """ Входные данные: название авиакомпании. Функция возвращает список рейсов(в формате JSON)
+        авиакомпании, которые еще не совершились.
         Если таких рейсов нет - функция возвращает JSON  с соответствующим сообщением"""
     
     conn = sqlite3.connect("forecast_bot_database.db") 
     cursor = conn.cursor() # подключаемся к базе
+    company_name = '"' + company_name + '"'   # создаем кавычки для company_name
+    sql = "SELECT * FROM M_Flights WHERE name={0}" # ищем записи с заданным названием авиакомпании
+    sql=sql.format(company_name)
+    cursor.execute(sql)
+    ans = cursor.fetchall() # найденные записи заносим в массив   
+    print (ans)
     res = []
-    for row in cursor.execute("SELECT rowid, * FROM M_Flights ORDER BY time_of_departure"):
-        temp_1= row[1][:3] # переменную записываем названием авиакомпании
-        #print (temp_1)
-        if temp_1 == name:
-            if row[4] != "time_of_departure":
-                import datetime
-                temp = row[4]
-                actual_time_date = datetime.datetime.now()
-                from datetime import datetime
-                temp = datetime.strptime(temp, '%Y_%m_%d_%H_%M') # переводим дату и время из строки в соответствующий формат
-
-                if actual_time_date < temp:
-                    #print(row)
-                    res.append(row[1:])
-
-    if len(res) == 0:
-        res = 'There are no forthcoming flights'
+    for element in ans:
+        actual_time_date = datetime.datetime.now() # находим текущую дату и время
+        temp = element[3]
+        temp = datetime.datetime.strptime(temp, '%Y_%m_%d_%H_%M') # переводим дату и время из строки в соответствующий формат
+        if actual_time_date < temp: # сравниваем текущее время и время вылета. если текущее значение времени меньше значит рейс еще не состоялся
+            print(element)
+            res.append(element) # добавляем в массив предстоящий рейс
+    if len(res) == 0: # если  в массиве результатов нет элементов значит предстоящих рейсов нет
+        res = 'There are no forthcoming flights' # возвращаем соответствующее сообщение
         flag = False
         return flag, res
-    elif len(res) > 0:
+    elif len(res) > 0: # если в массиве есть хоть один элемент - возвращаем массив
         flag = True
         return flag, res
 
 
-def archive(name):
-    conn = sqlite3.connect("forecast_bot_database.db") #
+
+def archive(company_name):
+    """ Входные данные: название авиакомпании. Функция возвращает список рейсов(в формате JSON)
+        совершенных за последний год.
+        Если таких рейсов нет - функция возвращает JSON  с соответствующим сообщением"""
+    
+    conn = sqlite3.connect("forecast_bot_database.db") 
     cursor = conn.cursor() # подключаемся к базе
-
+    company_name = '"' + company_name + '"'   # создаем кавычки для company_name
+    sql = "SELECT * FROM M_Flights WHERE name={0}" # ищем рейсы заданной авиакомпании
+    sql=sql.format(company_name)
+    cursor.execute(sql)
+    ans = cursor.fetchall() # найденные записи заносим в массив   
+    print (ans)
     res = []
-    #print("Here's a listing of all the records in the M_Flights:")
-    for row in cursor.execute("SELECT rowid, * FROM M_Flights ORDER BY time_of_departure"):
-        temp_1= row[1][:3]
-        #print (temp_1)
-        if temp_1 == name:
-            if row[4] != "time_of_departure":
-                import datetime
-                temp = row[4]
-                actual_time_date = datetime.datetime.now()
-                from datetime import datetime
-                temp = datetime.strptime(temp, '%Y_%m_%d_%H_%M') # переводим дату и время из строки в соответствующий формат
-                delta = actual_time_date - temp
-                
-                if actual_time_date < temp:
-                    #print(row)
-                    res.append(row[1:])
-
-    if len(res) == 0:
-        res = 'There are no forthcoming flights'
+    for element in ans:
+        actual_time_date = datetime.datetime.now() # находим текущую дату и время
+        temp = element[5] # находим время прилета
+        temp = datetime.datetime.strptime(temp, '%Y_%m_%d_%H_%M') # переводим дату и время из строки в соответствующий формат
+        if actual_time_date > temp: # сравниваем текущее время и время прилета. если текущее значение времени больше значит рейс состоялся
+            print(element)
+            res.append(element) # добавляем в массив состоявшийся рейс
+    if len(res) == 0: # если в массиве результатов нет элементов значит состоявшихся рейсов нет
+        res = 'There are no flights in archive' # возвращаем соответствующее сообщение
         flag = False
         return flag, res
-    elif len(res) > 0:
+    elif len(res) > 0: # если в массиве есть хоть один элемент - возвращаем массив
         flag = True
         return flag, res
-
-
-
