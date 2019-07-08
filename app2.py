@@ -27,7 +27,6 @@ def pop_app(aircompany_name, flight_number):
     report = crud_utilities.pop(aircompany_name, flight_number)
     return jsonify({'tasks': report})
 
-
 @application.route('/weather/<aircompany_name>/<flight_number>', methods=['GET'])
 def get_forecast_app(aircompany_name, flight_number):
     """Функция возвращает JSON с прогонозом погоды для города отправления и города прибытия указанного рейса.
@@ -35,14 +34,24 @@ def get_forecast_app(aircompany_name, flight_number):
     weather_1, weather_2 = crud_utilities.get_forecast(aircompany_name, flight_number) 
     return jsonify({'forecast for city of departure': weather_1, 'forecast for city of arrival': weather_2 })
     
+@application.route('/archive/<aircompany_name>', methods=['GET'])
+def get_archive(aircompany_name):
+    flag, report = crud_utilities.archive(aircompany_name)
+    if flag:
+        return jsonify({'completed flights': report})
+    else:
+        return jsonify({'answer': report})
+
 
 @application.route('/list/<aircompany_name>', methods=['GET'])
 def get_list(aircompany_name):
-    flag, report = crud_utilities.list(aircompany_name)
+    flag, report = crud_utilities.list_1(aircompany_name)
     if flag:
         return jsonify({'forthcoming flights': report})
     else:
         return jsonify({'answer': report})
+
+      
 
    
    
