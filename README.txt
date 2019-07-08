@@ -13,9 +13,9 @@ PUSH (get запрос): .../push/name/number/cityA/timeA/cityB/timeB
 name - название авиакомпании
 number - номер рейса
 cityA - названия города отправления на английском
-timeA - время отправления в формате dd_mm_yyyy_hh_mm 	  
+timeA - время отправления в формате yyyy_mm_dd_hh_mm 	  
 cityB - названия города прибытия на английском
-timeA - время прибытия в формате dd_mm_yyyy_hh_mm
+timeA - время прибытия в формате yyyy_mm_dd_hh_mm
 
 * Отмена рейса:
 POP (get запрос): .../pop/name/number 
@@ -59,9 +59,9 @@ http://testflask.space/push/name/number/cityA/timeA/cityB/timeB
 name - название авиакомпании
 number - номер рейса
 cityA - названия города отправления на английском
-timeA - время отправления в формате dd_mm_yyyy_hh_mm 	  
+timeA - время отправления в формате yyyy_mm_dd_hh_mm 	  
 cityB - названия города прибытия на английском
-timeA - время прибытия в формате dd_mm_yyyy_hh_mm
+timeA - время прибытия в формате yyyy_mm_dd_hh_mm
 
 пример запроса:
 http://testflask.space/push/B_2/148/Madrid/2019_06_08_19_40/London/2019_06_08_22_15
@@ -97,8 +97,10 @@ http://testflask.space/list/name
 name - название авиакомпании
 
 пример запроса:
-http://testflask.space/list/B_2
-после отправки запроса браузер вернет JSON список рейсов авиакомпании которые еще не совершились либо сообщение о том что таких рейсов нет: 
+http://testflask.space/list/etihat
+после отправки запроса браузер вернет JSON со списком рейсов авиакомпании, которые еще не совершились либо сообщение о том что таких рейсов нет: 
+
+{"forthcoming flights":[[{"flight number":"201"},{"city of departure":"Madrid"},{"time of departure":"2019-08-08 19:50"},{"city of arrival":"London"},{"time of departure":"2019-08-08 22:15"}]]}
 
 5. Archive (get запрос).
 Возвращает список всех совершенных рейсов за последний год
@@ -108,5 +110,7 @@ http://testflask.space/archive/name
 name - название авиакомпании
 
 пример запроса:
-http://testflask.space/archive/B_2
+http://testflask.space/archive/etihat
 после отправки запроса браузер вернет JSON список рейсов, cовершенных за последний год либо сообщение о том что таких рейсов нет: 
+
+{"completed flights":[[{"flight number":"201"},{"city of departure":"Madrid"},{"time of departure":"2019-05-11 19:50"},{"city of arrival":"London"},{"time of departure":"2019-05-11 22:15"}]]}
