@@ -89,7 +89,7 @@ name - название авиакомпании
 number - номер рейса 
 
 пример запроса:
-http://testflask.space/weather/B_2/148
+http://testflask.ru/weather/B_2/148
 после отправки запроса браузер вернет 2 JSON с данными о погоде в городе отправления и прибытия:
 
 {"forecast for city of arrival":{"_source":"19,22","condition":"cloudy","daytime":"d","feels_like":17,"humidity":64,"icon":"bkn_d","polar":false,"prec_mm":0,"prec_period":360,"prec_prob":0,"pressure_mm":759,"pressure_pa":1012,"soil_moisture":0.21,"soil_temp":21,"temp_avg":19,"temp_max":21,"temp_min":17,"wind_dir":"nw","wind_gust":9,"wind_speed":3.4},
@@ -116,7 +116,7 @@ http://testflask.ru/archive/name
 name - название авиакомпании
 
 пример запроса:
-http://testflask.space/archive/etihat
+http://testflask.ru/archive/etihat
 после отправки запроса браузер вернет JSON список рейсов, cовершенных за последний год либо сообщение о том что таких рейсов нет: 
 
 {"completed flights":[[{"flight number":"201"},{"city of departure":"Madrid"},{"time of departure":"2019-05-11 19:50"},{"city of arrival":"London"},{"time of departure":"2019-05-11 22:15"}]]}
