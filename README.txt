@@ -6,7 +6,7 @@ CRUD api (Create Read Update Delete)
 app2.py - Данный файл запускает приложение. Каждый запрос обрабатывается соответствующим декоратором и вызывает функцию.
 crud_utilities.py - В данном файле записаны все необходимые функции для приложения. Подробное описание содержится в файле.
 
-протестировать приложение можно на сайте http://testflask.space
+протестировать приложение можно на сайте http://testflask.ru
 
 Техническое задание:
 Нужно написать простой пример CRUD api, с использованием кеширования для ускорения запросов.
@@ -57,7 +57,7 @@ name - название авиакомпании
 
 1. Добавление рейса:
 Bвведите в адресной строке браузера запрос в приведенном ниже формате и нажмите enter:
-http://testflask.space/push/name/number/cityA/timeA/cityB/timeB
+http://testflask.ru/push/name/number/cityA/timeA/cityB/timeB
 
 name - название авиакомпании
 number - номер рейса
@@ -67,23 +67,23 @@ cityB - названия города прибытия на английско
 timeA - время прибытия в формате yyyy_mm_dd_hh_mm
 
 пример запроса:
-http://testflask.space/push/B_2/148/Madrid/2019_06_08_19_40/London/2019_06_08_22_15
+http://testflask.ru/push/B_2/148/Madrid/2019_06_08_19_40/London/2019_06_08_22_15
 после отправки запроса браузер вернет сообщение о том что данные добавлены: tasks: " information has been added to the base"
 
 2. Отмена рейса:
 Bвведите в адресной строке браузера запрос в приведенном ниже формате и нажмите enter:
-http://testflask.space/pop/name/number 
+http://testflask.ru/pop/name/number 
 
 name - название авиакомпании
 number - номер рейса
 
 пример запроса:
-http://testflask.space/pop/B_2/148
+http://testflask.ru/pop/B_2/148
 после отправки запроса браузер вернет сообщение о том что данные удалены: tasks: "database entry has been deleted"
 
 3. Запрос погоды для рейса. Команда возвращает 2 JSON с прогнозом погоды для города отправления и прибытия. Прогноз можно получить не более чем на 7 дней вперед. Если дата предстоящего рейса более чем 7 дней позже текущей даты вы получите сообщение о том что прогноз на данную дату не доступен.
 Bведите в адресной строке браузера запрос в приведенном ниже формате и нажмите enter:
-http://testflask.space/weather/<name>/<number>
+http://testflask.ru/weather/<name>/<number>
 
 name - название авиакомпании
 number - номер рейса 
@@ -99,11 +99,11 @@ http://testflask.space/weather/B_2/148
 Возвращает список рейсов авиакомпании которые еще не совершились.
 
 Bведите в адресной строке браузера запрос в приведенном ниже формате и нажмите enter:
-http://testflask.space/list/name
+http://testflask.ru/list/name
 name - название авиакомпании
 
 пример запроса:
-http://testflask.space/list/etihat
+http://testflask.ru/list/etihat
 после отправки запроса браузер вернет JSON со списком рейсов авиакомпании, которые еще не совершились либо сообщение о том что таких рейсов нет: 
 
 {"forthcoming flights":[[{"flight number":"201"},{"city of departure":"Madrid"},{"time of departure":"2019-08-08 19:50"},{"city of arrival":"London"},{"time of departure":"2019-08-08 22:15"}]]}
@@ -112,7 +112,7 @@ http://testflask.space/list/etihat
 Возвращает список всех совершенных рейсов за последний год
 
 Bведите в адресной строке браузера запрос в приведенном ниже формате и нажмите enter:
-http://testflask.space/archive/name
+http://testflask.ru/archive/name
 name - название авиакомпании
 
 пример запроса:
