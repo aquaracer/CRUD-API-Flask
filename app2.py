@@ -11,7 +11,7 @@ import crud_utilities
 application = Flask(__name__)
 
 @application.route("/")
-def hello():
+def index():
    return "<h1 style='color:blue'>Crud Api Example</h1>"
    
 @application.route('/push/<aircompany_name>/<flight_number>/<city_of_departure>/<time_of_departure>/<city_of_arrival>/<time_of_arrival>', methods=['GET'])
