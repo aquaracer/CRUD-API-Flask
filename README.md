@@ -83,8 +83,8 @@ http://crudapiflask.site/pop/B_2/148
 Bведите в адресной строке браузера запрос в приведенном ниже формате и нажмите enter:
 http://crudapiflask.site/weather/<name>/<number>
 
--name - название авиакомпании
--number - номер рейса 
+- name - название авиакомпании
+- number - номер рейса 
 
 пример запроса:
 http://crudapiflask.site/weather/B_2/148
