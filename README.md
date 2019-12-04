@@ -71,8 +71,8 @@ http://crudapiflask.site/push/B_2/148/Madrid/2019_06_08_19_40/London/2019_06_08_
 Bвведите в адресной строке браузера запрос в приведенном ниже формате и нажмите enter:
 http://crudapiflask.site/pop/name/number 
 
--name - название авиакомпании
--number - номер рейса
+- name - название авиакомпании
+- number - номер рейса
 
 пример запроса:
 http://crudapiflask.site/pop/B_2/148
