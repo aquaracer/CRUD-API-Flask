@@ -1,4 +1,4 @@
-CRUD api (Create Read Update Delete)
+## CRUD api, с использованием кеширования для ускорения запросов
 
 Задание реализовано на фреймворке Flask. 
 2 основных файла: app2.py и crud_utilities.py
