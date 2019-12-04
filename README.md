@@ -97,7 +97,7 @@ http://crudapiflask.site/weather/B_2/148
 Возвращает список рейсов авиакомпании которые еще не совершились.
 
 Bведите в адресной строке браузера запрос в приведенном ниже формате и нажмите enter: http://crudapiflask.site/list/name
--name - название авиакомпании
+- name - название авиакомпании
 
 пример запроса:
 http://crudapiflask.site/list/etihat
@@ -108,9 +108,8 @@ http://crudapiflask.site/list/etihat
 ##### 5. Archive (get запрос).
 Возвращает список всех совершенных рейсов за последний год
 
-Bведите в адресной строке браузера запрос в приведенном ниже формате и нажмите enter:
-http://crudapiflask.site/archive/name
-name - название авиакомпании
+Bведите в адресной строке браузера запрос в приведенном ниже формате и нажмите enter: http://crudapiflask.site/archive/name
+- name - название авиакомпании
 
 пример запроса:
 http://crudapiflask.site/archive/etihat
