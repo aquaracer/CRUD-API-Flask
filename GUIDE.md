@@ -12,7 +12,7 @@ http://crudapiflask.site/push/name/number/cityA/timeA/cityB/timeB
 - timeA - время прибытия в формате yyyy_mm_dd_hh_mm
 
 пример запроса:
-http://crudapiflask.site/push/B_2/148/Madrid/2019_06_08_19_40/London/2019_06_08_22_15
+http://crudapiflask.site/push/RedAir/110/Madrid/2019_12_14_19_40/London/2019_12_14_22_15
 после отправки запроса браузер вернет сообщение о том что данные добавлены: tasks: " information has been added to the base"
 
 ##### 2. Отмена рейса:
@@ -23,7 +23,7 @@ http://crudapiflask.site/pop/name/number
 - number - номер рейса
 
 пример запроса:
-http://crudapiflask.site/pop/B_2/148
+http://crudapiflask.site/pop/RedAir/110
 после отправки запроса браузер вернет сообщение о том что данные удалены: tasks: "database entry has been deleted"
 
 ##### 3. Запрос погоды для рейса:
@@ -35,11 +35,53 @@ http://crudapiflask.site/weather/name/number
 - number - номер рейса 
 
 пример запроса:
-http://crudapiflask.site/weather/B_2/148
+http://crudapiflask.site/weather/RedAir/110
 после отправки запроса браузер вернет 2 JSON с данными о погоде в городе отправления и прибытия:
+	
+###### forecast for city of arrival	
+_source	"18,21"
+condition	"overcast-and-light-rain"
+daytime	"n"
+feels_like	-1
+humidity	77
+icon	"bkn_-ra_n"
+polar	false
+prec_mm	0.1
+prec_period	360
+prec_prob	40
+pressure_mm	749
+pressure_pa	999
+soil_moisture	0.39
+soil_temp	4
+temp_avg	4
+temp_max	4
+temp_min	4
+wind_dir	"sw"
+wind_gust	10.2
+wind_speed	3.8
+###### forecast for city of departure	
+_source	"19,22"
+condition	"overcast"
+daytime	"n"
+feels_like	6
+humidity	85
+icon	"ovc"
+polar	false
+prec_mm	0
+prec_period	360
+prec_prob	0
+pressure_mm	705
+pressure_pa	940
+soil_moisture	0.29
+soil_temp	10
+temp_avg	9
+temp_max	9
+temp_min	8
+wind_dir	"sw"
+wind_gust	6.2
+wind_speed	2.7
 
-{"forecast for city of arrival":{"_source":"19,22","condition":"cloudy","daytime":"d","feels_like":17,"humidity":64,"icon":"bkn_d","polar":false,"prec_mm":0,"prec_period":360,"prec_prob":0,"pressure_mm":759,"pressure_pa":1012,"soil_moisture":0.21,"soil_temp":21,"temp_avg":19,"temp_max":21,"temp_min":17,"wind_dir":"nw","wind_gust":9,"wind_speed":3.4},
-"forecast for city of departure":{"_source":"20,23","condition":"clear","daytime":"d","feels_like":33,"humidity":20,"icon":"skc_d","polar":false,"prec_mm":0,"prec_period":360,"prec_prob":0,"pressure_mm":699,"pressure_pa":932,"soil_moisture":0.1,"soil_temp":38,"temp_avg":35,"temp_max":38,"temp_min":31,"uv_index":1,"wind_dir":"sw","wind_gust":10.5,"wind_speed":1.9}}
+
 
 ##### 4. List (get запрос).
 Возвращает список рейсов авиакомпании которые еще не совершились.
