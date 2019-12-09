@@ -90,19 +90,41 @@ Bведите в адресной строке браузера запрос в 
 - name - название авиакомпании
 
 пример запроса:
-http://crudapiflask.site/list/etihat
+http://crudapiflask.site/list/RedAir
 после отправки запроса браузер вернет JSON со списком рейсов авиакомпании, которые еще не совершились либо сообщение о том что таких рейсов нет: 
 
 {"forthcoming flights":[[{"flight number":"201"},{"city of departure":"Madrid"},{"time of departure":"2019-08-08 19:50"},{"city of arrival":"London"},{"time of departure":"2019-08-08 22:15"}]]}
 
 ##### 5. Archive (get запрос).
-Возвращает список всех совершенных рейсов за последний год
+Возвращает список всех совершенных авиакомпанией рейсов за последний год
 
 Bведите в адресной строке браузера запрос в приведенном ниже формате и нажмите enter: http://crudapiflask.site/archive/name
 - name - название авиакомпании
 
 пример запроса:
-http://crudapiflask.site/archive/etihat
+http://crudapiflask.site/archive/RedAir
 после отправки запроса браузер вернет JSON список рейсов, cовершенных за последний год либо сообщение о том что таких рейсов нет: 
 
-{"completed flights":[[{"flight number":"201"},{"city of departure":"Madrid"},{"time of departure":"2019-05-11 19:50"},{"city of arrival":"London"},{"time of departure":"2019-05-11 22:15"}]]}
+	
+###### completed flights	
+0	
+	
+-flight number	"98"
+1	
+city of departure	"Madrid"
+2	
+time of departure	"2019-12-05 19:40"
+3	
+city of arrival	"London"
+4	
+time of departure	"2019-12-05 22:15"
+
+-flight number	"97"
+1	
+city of departure	"Madrid"
+2	
+time of departure	"2019-12-01 19:40"
+3	
+city of arrival	"London"
+4	
+time of departure	"2019-12-01 22:15"
