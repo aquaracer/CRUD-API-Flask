@@ -93,7 +93,27 @@ Bведите в адресной строке браузера запрос в 
 http://crudapiflask.site/list/RedAir
 после отправки запроса браузер вернет JSON со списком рейсов авиакомпании, которые еще не совершились либо сообщение о том что таких рейсов нет: 
 
-{"forthcoming flights":[[{"flight number":"201"},{"city of departure":"Madrid"},{"time of departure":"2019-08-08 19:50"},{"city of arrival":"London"},{"time of departure":"2019-08-08 22:15"}]]}
+###### forthcoming flights	
+
+-flight number	"100"
+1	
+city of departure	"Madrid"
+2	
+time of departure	"2019-12-26 19:40"
+3	
+city of arrival	"London"
+4	
+time of departure	"2019-12-26 22:15"
+	
+-flight number	"110"
+1	
+city of departure	"Madrid"
+2	
+time of departure	"2019-12-14 19:40"
+3	
+city of arrival	"London"
+4	
+time of departure	"2019-12-14 22:15"
 
 ##### 5. Archive (get запрос).
 Возвращает список всех совершенных авиакомпанией рейсов за последний год
@@ -107,7 +127,7 @@ http://crudapiflask.site/archive/RedAir
 
 	
 ###### completed flights	
-0	
+	
 	
 -flight number	"98"
 1	
